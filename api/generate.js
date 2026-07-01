@@ -1,5 +1,8 @@
 import OpenAI from "openai";
 
+console.log("Function Started");
+console.log("API KEY:", process.env.DEEPSEEK_API_KEY);
+
 export default async function handler(req, res) {
   try {
     console.log("Function Started");
@@ -15,7 +18,7 @@ console.log("Method:", req.method);
 console.log("Headers:", req.headers);
 console.log("Body:", req.body);
 
-    const { prompt } = req.body;
+const { prompt } = req.body;
 
     const response = await client.chat.completions.create({
       model: "deepseek-chat",
