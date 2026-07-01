@@ -1019,7 +1019,15 @@ Output ONLY the code. No markdown fences, no explanations — pure code with inl
 
 });
 
-const data = await response.json();
+const text = await response.text();
+console.log(text);
+
+try {
+    const data = JSON.parse(text);
+    console.log(data);
+} catch (err) {
+    console.error("Server didn't return JSON:", text);
+}
 
 const code = data.choices?.[0]?.message?.content || "";
     state.generatedCode = code;
