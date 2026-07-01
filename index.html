@@ -1022,6 +1022,9 @@ Output ONLY the code. No markdown fences, no explanations — pure code with inl
 const data = await response.json();
 
 const code = data.choices?.[0]?.message?.content || "";
+    state.generatedCode = code;
+    state.lastSymbol = symbol;
+    state.lastFileExt = fileExt;
 
     // Show code
     document.getElementById('code-placeholder').style.display = 'none';
