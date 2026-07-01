@@ -11,6 +11,10 @@ export default async function handler(req, res) {
       baseURL: "https://api.deepseek.com",
     });
 
+console.log("Method:", req.method);
+console.log("Headers:", req.headers);
+console.log("Body:", req.body);
+
     const { prompt } = req.body;
 
     const response = await client.chat.completions.create({
