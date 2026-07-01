@@ -3,6 +3,11 @@ import OpenAI from "openai";
 console.log("Function Started");
 console.log("API KEY:", process.env.DEEPSEEK_API_KEY);
 
+import { generate } from "./gemini.js";
+
+const result = await generate("Explain quantum computing in simple words.");
+console.log(result);
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -29,7 +34,19 @@ export default async function handler(req, res) {
       apiKey: process.env.DEEPSEEK_API_KEY,
       baseURL: "https://api.deepseek.com",
     });
+const apiKeys = [
+  process.env.OPENAI_API_KEY_1,
+  process.env.OPENAI_API_KEY_2,
+  process.env.OPENAI_API_KEY_3
+];
 
+let currentKey = 0;
+
+function getApiKey() {
+  const key = apiKeys[currentKey];
+  currentKey = (currentKey + 1) % apiKeys.length;
+  return key;
+}
 console.log("Method:", req.method);
 console.log("Headers:", req.headers);
 console.log("Body:", req.body);
