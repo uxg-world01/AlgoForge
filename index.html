@@ -951,6 +951,7 @@ function switchTab(name, btn) {
 }
 
 // ─── GENERATE SCRIPT ──────────────────────────────────────────────────────────
+// ─── GENERATE SCRIPT ──────────────────────────────────────────────────────────
 async function generateScript() {
   const patterns = state.patterns;
   if (patterns.length === 0) { showToast('⚠️ Select at least one candlestick pattern'); return; }
@@ -1006,49 +1007,47 @@ Output ONLY the code. No markdown fences, no explanations — pure code with inl
 
   try {
     const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
+    });
 
-  method: "POST",
+    const text = await response.text();
+    console.log("Raw server response:", text);
 
-  headers: {
-    "Content-Type": "application/json"
-  },
+    let data = null;
+    try {
+      data = JSON.parse(text);
+      console.log("Parsed:", data);
+    } catch (err) {
+      console.error("Server didn't return JSON:", text);
+      showToast("❌ Server error — check browser console");
+      return;
+    }
 
-  body: JSON.stringify({
-    prompt
-  })
+    if (!response.ok) {
+      console.error("Server error:", data);
+      showToast("❌ " + (data.error || "Request failed"));
+      return;
+    }
 
-});
+    const code = data.response || "";
 
-const text = await response.text();
-console.log(text);
-
-try {
-    const data = JSON.parse(text);
-    console.log(data);
-} catch (err) {
-    console.error("Server didn't return JSON:", text);
-}
-
-const code = data.choices?.[0]?.message?.content || "";
     state.generatedCode = code;
     state.lastSymbol = symbol;
     state.lastFileExt = fileExt;
 
-    // Show code
     document.getElementById('code-placeholder').style.display = 'none';
     document.getElementById('code-toolbar').style.display = 'flex';
     const codeEl = document.getElementById('code-output');
     codeEl.style.display = 'block';
     codeEl.textContent = code;
-    document.getElementById('code-lang-badge').textContent = langLabel;
+    document.getElementById('code-lang-badge').textContent = `${langLabel} · ${data.provider}`;
 
-    // Build explanation
     buildExplanation(lang, market, symbol, patterns, srMethod, sl, rr, tf);
-
-    // Build backtest notes
     buildBacktestNotes(symbol, tf, rr);
 
-    showToast('✅ Script generated successfully!');
+    showToast('✅ Script generated via ' + data.provider + '!');
   } catch (err) {
     showToast('❌ Error: ' + err.message);
     console.error(err);
